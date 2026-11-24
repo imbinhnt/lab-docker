@@ -1,0 +1,30 @@
+{{- $fullName := include "java-web-demo.fullname" . -}}
+Application **{{ .Chart.Name }}** has been deployed.
+
+- Namespace: `{{ .Release.Namespace }}`
+- Deployment: `{{ $fullName }}`
+- Service: `{{ $fullName }}:{{ .Values.service.port }}`
+- Profile: `{{ .Values.config.springProfilesActive }}`
+- Replicas: `{{ .Values.replicaCount }}`
+
+Check rollout and health:
+
+```bash
+kubectl -n {{ .Release.Namespace }} rollout status deployment/{{ $fullName }}
+kubectl -n {{ .Release.Namespace }} get pods -l app.kubernetes.io/instance={{ .Release.Name }}
+kubectl -n {{ .Release.Namespace }} port-forward svc/{{ $fullName }} 8080:{{ .Values.service.port }}
+curl http://localhost:8080/actuator/health/liveness
+curl http://localhost:8080/actuator/health/readiness
+```
+
+{{- if .Values.ingress.enabled }}
+Ingress hosts:
+{{- range .Values.ingress.hosts }}
+- http://{{ .host }}/
+{{- end }}
+{{- end }}
+
+{{- if and (not .Values.secret.existingSecret) (eq .Values.config.springProfilesActive "prod") }}
+WARNING: this release creates its own Secret from values. For production,
+prefer `secret.existingSecret` backed by an external secret manager.
+{{- end }}

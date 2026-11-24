@@ -1,0 +1,39 @@
+# Local/dev values (kind or minikube).
+replicaCount: 1
+
+image:
+  repository: your-dockerhub-username/java-web-demo
+  tag: dev
+  pullPolicy: IfNotPresent
+
+config:
+  springProfilesActive: dev
+  dbUrl: jdbc:postgresql://postgres:5432/demo_db
+  dbUser: demo
+  jwtExpiration: PT1H
+  corsAllowedOrigins: "http://localhost:3000,http://localhost:8080"
+  springdocEnabled: "true"
+
+# Dev-only placeholders, matching .env.example. Never use these in production.
+secret:
+  dbPassword: demo123
+  jwtSecret: dev-only-secret-change-me-please-32-bytes-minimum
+  adminUser: admin
+  adminPassword: admin123
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: java-web-demo.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 384Mi
+  limits:
+    cpu: 500m
+    memory: 768Mi

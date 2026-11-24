@@ -1,0 +1,33 @@
+# Build output
+target/
+build/
+out/
+*.class
+.m2/
+
+# VCS / IDE
+.git/
+.gitignore
+.idea/
+.vscode/
+*.iml
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example
+
+# Local data / logs / reports
+logs/
+*.log
+*.exec
+jacoco-report/
+
+# Docker files themselves
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Deployment tooling (image only needs pom/src)
+deploy/
+Jenkinsfile

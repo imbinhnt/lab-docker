@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Java Web trong Docker</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: 8vh auto; padding: 0 16px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; }
+    code { background: #eee; padding: 2px 6px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Assignment 03: Docker Image and Container</h1>
+  <p>Spring Boot + PostgreSQL chạy bằng Docker Compose.</p>
+  <p>
+<!--    <a href="/api/hello"><code>/api/hello</code></a> ·-->
+    <a href="/api/v1/products"><code>/api/v1/products</code></a> ·
+    <a href="/api/v1/categories"><code>/api/v1/categories</code></a> ·
+    <a href="/swagger-ui.html"><code>/swagger-ui.html</code></a> ·
+    <a href="/actuator/health"><code>/actuator/health</code></a>
+  </p>
+  <h2>Sản phẩm (đọc từ PostgreSQL)</h2>
+  <table id="t">
+    <thead><tr><th>ID</th><th>SKU</th><th>Tên</th><th>Giá</th><th>SL</th><th>Danh mục</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <script>
+    fetch('/api/v1/products')
+      .then(r => r.json())
+      .then(d => {
+        const tb = document.querySelector('#t tbody');
+        d.items.forEach(p => {
+          const tr = document.createElement('tr');
+          [p.id, p.sku, p.name, p.price, p.quantity, p.categoryName].forEach(v => {
+            const td = document.createElement('td');
+            td.textContent = v;
+            tr.appendChild(td);
+          });
+          tb.appendChild(tr);
+        });
+      });
+  </script>
+</body>
+</html>

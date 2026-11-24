@@ -1,0 +1,15 @@
+---
+# Cài Docker Engine + compose plugin trên host đích (Debian/Ubuntu hoặc RHEL/CentOS).
+- name: Install Docker runtime
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - docker
+
+- name: Deploy java-web-demo container
+  hosts: all
+  become: true
+  gather_facts: false
+  roles:
+    - app

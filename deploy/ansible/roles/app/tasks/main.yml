@@ -1,0 +1,77 @@
+---
+- name: Validate required deployment secrets
+  ansible.builtin.assert:
+    that:
+      - dockerhub_user | length > 0
+      - image_tag | length > 0
+      - db_url | length > 0
+      - db_user | length > 0
+      - db_password | length > 0
+      - jwt_secret | length >= 32
+      - admin_user | length > 0
+      - admin_password | length > 0
+    fail_msg: >-
+      Missing deployment configuration. Provide values through Ansible Vault
+      (group_vars/vault.yml) or the DB_*, JWT_*, APP_SECURITY_*, DOCKERHUB_*
+      environment variables.
+    quiet: true
+
+- name: Ensure application configuration directory exists
+  ansible.builtin.file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: Render application environment file
+  ansible.builtin.template:
+    src: app.env.j2
+    dest: "{{ app_dir }}/app.env"
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
+
+- name: Log in to Docker Hub (optional)
+  ansible.builtin.shell: |
+    echo "{{ dockerhub_token }}" | docker login -u "{{ dockerhub_user }}" --password-stdin
+  args:
+    executable: /bin/bash
+  no_log: true
+  changed_when: true
+  when: dockerhub_token | default('') | length > 0
+
+- name: Pull application image
+  ansible.builtin.command: "docker pull {{ image_name }}:{{ image_tag }}"
+  changed_when: true
+
+- name: Remove previous container if present
+  ansible.builtin.command: "docker rm -f {{ container_name }}"
+  register: remove_result
+  changed_when: remove_result.rc == 0
+  failed_when: false
+
+- name: Run application container
+  ansible.builtin.command: >-
+    docker run -d
+    --name {{ container_name }}
+    --restart unless-stopped
+    --env-file {{ app_dir }}/app.env
+    -p {{ app_port }}:8080
+    {{ image_name }}:{{ image_tag }}
+  register: run_result
+  changed_when: run_result.rc == 0
+
+- name: Wait until the container reports healthy
+  ansible.builtin.command: >-
+    docker inspect --format={{ '{{' }}.State.Health.Status{{ '}}' }} {{ container_name }}
+  register: health
+  until: health.stdout == 'healthy'
+  retries: 30
+  delay: 5
+  changed_when: false
+
+- name: Show container status
+  ansible.builtin.debug:
+    msg: "{{ container_name }} is {{ health.stdout }} on port {{ app_port }}"

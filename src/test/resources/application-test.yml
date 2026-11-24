@@ -1,0 +1,29 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+    locations: classpath:db/migration,classpath:db/seed
+
+app:
+  security:
+    public-api: false
+    user: test-admin
+    password: test-password
+    jwt:
+      secret: test-only-secret-change-me-please-32-bytes-minimum
+      expiration: PT15M
+  cors:
+    allowed-origins: http://localhost:3000
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: false
+
+logging:
+  level:
+    root: WARN
+    com.example.demo: INFO

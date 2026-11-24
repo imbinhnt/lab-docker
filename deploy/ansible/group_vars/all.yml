@@ -1,0 +1,26 @@
+---
+# Non-secret defaults. Every secret resolves in this order:
+#   1. Ansible Vault variable (vault_*)
+#   2. Environment variable on the controller (Jenkins agent / operator shell)
+#   3. Empty -> the app role fails fast with a clear message.
+app_name: java-web-demo
+container_name: java-web-demo
+app_dir: /etc/java-web-demo
+app_port: 8080
+
+dockerhub_user: "{{ vault_dockerhub_user | default(lookup('env', 'DOCKERHUB_USER'), true) }}"
+dockerhub_token: "{{ vault_dockerhub_token | default(lookup('env', 'DOCKERHUB_TOKEN'), true) }}"
+image_name: "{{ dockerhub_user }}/java-web-demo"
+image_tag: "{{ lookup('env', 'IMAGE_TAG') | default('latest', true) }}"
+
+db_url: "{{ vault_db_url | default(lookup('env', 'DB_URL'), true) }}"
+db_user: "{{ vault_db_user | default(lookup('env', 'DB_USER'), true) }}"
+db_password: "{{ vault_db_password | default(lookup('env', 'DB_PASSWORD'), true) }}"
+
+jwt_secret: "{{ vault_jwt_secret | default(lookup('env', 'JWT_SECRET'), true) }}"
+jwt_expiration: "{{ vault_jwt_expiration | default(lookup('env', 'JWT_EXPIRATION'), true) | default('PT1H', true) }}"
+
+admin_user: "{{ vault_admin_user | default(lookup('env', 'APP_SECURITY_USER'), true) }}"
+admin_password: "{{ vault_admin_password | default(lookup('env', 'APP_SECURITY_PASSWORD'), true) }}"
+
+cors_allowed_origins: "{{ vault_cors_allowed_origins | default(lookup('env', 'CORS_ALLOWED_ORIGINS'), true) | default('', true) }}"

@@ -1,0 +1,61 @@
+spring:
+  application:
+    name: java-web-demo
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  # Không đặt default cho thông tin DB ở đây: dev giữ default an toàn trong
+  # application-dev.yml, còn staging/prod bắt buộc cung cấp qua biến môi trường.
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+    # Schema applies everywhere. Seed data lives in db/seed and is enabled
+    # only by the dev/staging/test profiles.
+    locations: classpath:db/migration
+
+server:
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+  compression:
+    enabled: true
+
+app:
+  version: "@project.version@"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when_authorized
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: ${spring.application.name}
+    version: ${app.version}
+    description: Spring Boot enterprise demo API
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+logging:
+  pattern:
+    level: "%5p [%X{requestId:-}]"

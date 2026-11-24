@@ -1,0 +1,109 @@
+# Default values. Secrets are intentionally empty and required at install time,
+# unless secret.existingSecret is set.
+replicaCount: 2
+
+image:
+  repository: your-dockerhub-username/java-web-demo
+  tag: latest
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: false
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 100
+  runAsGroup: 101
+  fsGroup: 101
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+config:
+  springProfilesActive: prod
+  dbUrl: jdbc:postgresql://postgres:5432/demo_db
+  dbUser: demo
+  jwtExpiration: PT1H
+  corsAllowedOrigins: "https://example.com"
+  springdocEnabled: "false"
+
+secret:
+  # Set to an existing Secret name to skip creating one from values below.
+  existingSecret: ""
+  dbPassword: ""
+  jwtSecret: ""
+  adminUser: "admin"
+  adminPassword: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: java-web-demo.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+probes:
+  startup:
+    enabled: true
+    path: /actuator/health/liveness
+    failureThreshold: 30
+    periodSeconds: 5
+  liveness:
+    path: /actuator/health/liveness
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  readiness:
+    path: /actuator/health/readiness
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+flyway:
+  # Run Flyway in an init container so the schema is ready before the app starts.
+  # Flyway's database lock keeps concurrent replica startups safe.
+  initContainer:
+    enabled: true
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

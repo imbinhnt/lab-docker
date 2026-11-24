@@ -1,0 +1,45 @@
+# Production-shaped values. Put real secrets in a pre-created Kubernetes Secret
+# named below (kubectl create secret generic ...) instead of committing values.
+replicaCount: 3
+
+image:
+  repository: your-dockerhub-username/java-web-demo
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+config:
+  springProfilesActive: prod
+  dbUrl: jdbc:postgresql://postgres.example.com:5432/demo_db
+  dbUser: demo
+  jwtExpiration: PT1H
+  corsAllowedOrigins: "https://app.example.com"
+  springdocEnabled: "false"
+
+secret:
+  # Must contain DB_PASSWORD, JWT_SECRET, APP_SECURITY_USER,
+  # APP_SECURITY_PASSWORD.
+  existingSecret: java-web-demo-secrets
+  adminUser: admin
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: api.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: java-web-demo-tls
+      hosts:
+        - api.example.com
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 768Mi
+  limits:
+    cpu: "2"
+    memory: 1Gi

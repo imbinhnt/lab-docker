@@ -1,0 +1,15 @@
+---
+# Example Vault payload. Copy to group_vars/vault.yml, fill in real values, then:
+#   ansible-vault encrypt deploy/ansible/group_vars/vault.yml
+#
+# Never commit the encrypted or plain vault.yml.
+vault_dockerhub_user: your-dockerhub-username
+vault_dockerhub_token: dckr_pat_replace_me
+vault_db_url: jdbc:postgresql://db.internal:5432/demo_db
+vault_db_user: demo
+vault_db_password: replace-me
+vault_jwt_secret: replace-me-with-at-least-32-characters
+vault_jwt_expiration: PT1H
+vault_admin_user: admin
+vault_admin_password: replace-me
+vault_cors_allowed_origins: https://app.example.com

@@ -1,0 +1,41 @@
+# =============================================================================
+# Staging profile: all secrets are required from environment variables.
+# =============================================================================
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:2}
+  flyway:
+    locations: classpath:db/migration,classpath:db/seed
+
+app:
+  security:
+    public-api: ${SECURITY_PUBLIC_API:false}
+    user: ${APP_SECURITY_USER}
+    password: ${APP_SECURITY_PASSWORD}
+    jwt:
+      secret: ${JWT_SECRET}
+      expiration: ${JWT_EXPIRATION:PT1H}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
+
+springdoc:
+  api-docs:
+    enabled: ${SPRINGDOC_ENABLED:true}
+  swagger-ui:
+    enabled: ${SPRINGDOC_ENABLED:true}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  level:
+    root: INFO
+    com.example.demo: INFO
